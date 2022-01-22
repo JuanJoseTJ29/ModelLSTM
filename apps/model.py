@@ -12,7 +12,7 @@ def app():
     end = '2022-01-20'
 
 
-    st.title('Predicción de tendencia de acciones - Grupo 6')
+    st.title('Predicción de tendencia de acciones')
 
     user_input = st.text_input('Introducir cotización bursátil' , 'GOOG')
 

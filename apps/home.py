@@ -1,7 +1,7 @@
 import streamlit as st
 
 def app():
-    st.title('GRUPO 6 - Integrantes:')
+    st.title('Integrantes:')
 
     st.write('Antúnez Palomino, Kori Xiomara - 18200110')
     st.write('Caicedo Porras , Jose Ricardo - 18200077')
