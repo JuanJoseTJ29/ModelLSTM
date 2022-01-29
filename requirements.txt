@@ -10,5 +10,5 @@ tensorflow
 keras
 scikit-learn
 plotly
-yfinance --upgrade --no-cache-dir
+
 
