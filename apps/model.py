@@ -8,9 +8,10 @@ import streamlit as st
 def app():
     st.title('Model - LSTM')
 
-    start = '2004-08-18'
-    end = '2022-01-20'
-
+    #start = '2004-08-18'
+    #end = '2022-01-20'
+    start = st.date_input('Start' , value=pd.to_datetime('2004-08-18'))
+    end = st.date_input('End' , value=pd.to_datetime('today'))
 
     st.title('Predicción de tendencia de acciones')
 
@@ -24,6 +25,8 @@ def app():
     st.write(df.describe())
 
     #Visualizaciones 
+
+  
     st.subheader('Closing Price vs Time chart')
     fig = plt.figure(figsize = (12,6))
     plt.plot(df.Close)
@@ -78,6 +81,7 @@ def app():
         y_test.append(input_data[i, 0])
 
 
+
     x_test, y_test = np.array(x_test), np.array(y_test)
     y_predicted = model.predict(x_test)
     scaler = scaler.scale_
@@ -95,6 +99,9 @@ def app():
     plt.ylabel('Precio')
     plt.legend()
     st.pyplot(fig2)
+
+
+
 
 
 
