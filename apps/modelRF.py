@@ -2,6 +2,7 @@ from tensorflow.keras.models import load_model
 import streamlit as st
 #import talib
 from sklearn import metrics
+import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import ParameterGrid
 from sklearn.metrics import roc_auc_score, plot_roc_curve
