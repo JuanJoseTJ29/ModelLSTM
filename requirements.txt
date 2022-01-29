@@ -10,5 +10,6 @@ tensorflow
 keras
 scikit-learn
 plotly
+yfinance
 
 
