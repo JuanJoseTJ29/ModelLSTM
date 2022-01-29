@@ -1,6 +1,6 @@
 from tensorflow.keras.models import load_model
 import streamlit as st
-import talib
+#import talib
 from sklearn import metrics
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import ParameterGrid
