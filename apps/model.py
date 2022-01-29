@@ -51,12 +51,12 @@ def app():
     st.subheader('Closing Price vs Time chart con 100MA & 200MA')
     ma100 = df.Close.rolling(100).mean()
     ma200 = df.Close.rolling(200).mean()
-    plt.figure(figsize=(12,6))
+    fig5 = plt.figure(figsize=(12,6))
     plt.plot(df.Close)
     plt.plot(ma100,'r', label='ma100')
     plt.plot(ma200,'g', label='ma200')
     plt.legend()
-    st.pyplot(fig)
+    st.pyplot(fig5)
 
 
 
