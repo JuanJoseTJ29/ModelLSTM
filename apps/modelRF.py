@@ -3,6 +3,7 @@ import streamlit as st
 #import talib
 from sklearn import metrics
 import pandas as pd
+import yfinance as yf
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import ParameterGrid
 from sklearn.metrics import roc_auc_score, plot_roc_curve
@@ -13,9 +14,19 @@ import plotly.express as px
 def app():
     st.title('Model - Random Forest')
 
-    start = st.date_input('Start' , value=pd.to_datetime('2004-08-18'))
-    end = st.date_input('End' , value=pd.to_datetime('today'))
+    #start = st.date_input('Start' , value=pd.to_datetime('2004-08-18'))
+    #end = st.date_input('End' , value=pd.to_datetime('today'))
 
+
+
+    ticker= "googl"
+    stock_data = yf.download(ticker, start="2008-01-04", end="2022-01-27")
+
+
+    fig = plt.figure(figsize = (12,6))
+    stock_data['Adj Close'].plot()
+    plt.ylabel("Precio de cierre ajustado")
+    st.pyplot(fig)
 
     st.title('Predicción de tendencia de acciones')
 
