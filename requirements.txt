@@ -9,3 +9,5 @@ pandas_datareader
 tensorflow
 keras
 scikit-learn
+plotly
+TA_Lib

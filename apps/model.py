@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import pandas_datareader as data
+import pandas_datareader as datas
 from tensorflow.keras.models import load_model
 import streamlit as st
 
@@ -17,7 +17,7 @@ def app():
 
     user_input = st.text_input('Introducir cotización bursátil' , 'GOOG')
 
-    df = data.DataReader(user_input, 'yahoo', start, end)
+    df = datas.DataReader(user_input, 'yahoo', start, end)
 
     # Describiendo los datos
 
@@ -32,34 +32,51 @@ def app():
     plt.plot(df.Close)
     st.pyplot(fig)
 
+    
 
     st.subheader('Closing Price vs Time chart con 100MA')
     ma100 = df.Close.rolling(100).mean()
     fig = plt.figure(figsize = (12,6))
-    plt.plot(ma100)
     plt.plot(df.Close)
+    plt.plot(ma100,'r', label='ma100')
+    plt.legend()
     st.pyplot(fig)
+
+
+
+
+
+
 
     st.subheader('Closing Price vs Time chart con 100MA & 200MA')
     ma100 = df.Close.rolling(100).mean()
     ma200 = df.Close.rolling(200).mean()
-    fig = plt.figure(figsize = (12,6))
-    plt.plot(ma100, 'r')
-    plt.plot(ma200, 'g')
-    plt.plot(df.Close, 'b')
+    plt.figure(figsize=(12,6))
+    plt.plot(df.Close)
+    plt.plot(ma100,'r', label='ma100')
+    plt.plot(ma200,'g', label='ma200')
+    plt.legend()
     st.pyplot(fig)
+
+
+
 
     # Splitting data into training and testing 
 
-    data_training = pd.DataFrame(df['Close'][0:int(len(df)*0.70)])
-    data_testing = pd.DataFrame(df['Close'][int(len(df)*0.70): int(len(df))])
+    # Cree un nuevo marco de datos con solo la columna 'Close'
+    data = df.filter(['Close'])
 
+    # Convierte el marco de datos en una matriz numpy
+    dataset = data.values
+
+    # Obtenga el número de filas para entrenar el modelo
+    training_data_len = int(np.ceil( len(dataset) * .95 ))
+
+    # Escalando la data
     from sklearn.preprocessing import MinMaxScaler
-    scaler = MinMaxScaler(feature_range = (0,1))
 
-    data_training_array = scaler.fit_transform(data_training)
-
-
+    scaler = MinMaxScaler(feature_range=(0,1))
+    scaled_data = scaler.fit_transform(dataset)
 
 
     # Cargar mi modelo
@@ -67,39 +84,84 @@ def app():
     model = load_model('keras_model.h5')
 
 
-    # Parte de prueba
-
-    past_100_days = data_training.tail(100)
-    final_df = past_100_days.append(data_testing, ignore_index=True)
-    input_data = scaler.fit_transform(final_df)
-
+    # Create the testing data set
+    # Create a new array containing scaled values from index 1543 to 2002 
+    # Crear el conjunto de datos de prueba
+    # Crear una nueva matriz que contenga valores escalados del índice 1543 al 2002
+    test_data = scaled_data[training_data_len - 60: , :]
+    # Create the data sets x_test and y_test
     x_test = []
-    y_test = []
+    y_test = dataset[training_data_len:, :]
+    for i in range(60, len(test_data)):
+        x_test.append(test_data[i-60:i, 0])
+            
+    # Convert the data to a numpy array
+    # Convierte los datos en una matriz numpy
+    x_test = np.array(x_test)
 
-    for i in range (100, input_data.shape[0]):
-        x_test.append(input_data[i-100: i])
-        y_test.append(input_data[i, 0])
+    # Reshape the data
+    # Reforma los datos
+    x_test = np.reshape(x_test, (x_test.shape[0], x_test.shape[1], 1 ))
 
+    # Get the models predicted price values 
+    # Obtenga los valores de precios predichos de los modelos
+    predictions = model.predict(x_test)
+    predictions = scaler.inverse_transform(predictions)
 
+    # Get the root mean squared error (RMSE)
+    # Obtener la raíz del error cuadrático medio (RMSE)
+    rmse = np.sqrt(np.mean(((predictions - y_test) ** 2)))
+    rmse
 
-    x_test, y_test = np.array(x_test), np.array(y_test)
-    y_predicted = model.predict(x_test)
-    scaler = scaler.scale_
+    # Graficos Finales
+    train = data[:training_data_len]
+    valid = data[training_data_len:]
+    valid['Predictions'] = predictions
+    # Visualizando la data
+    st.subheader('Comparacion de entrenamiento y validacion ')
+    fig2=plt.figure(figsize=(16,6))
+    plt.title('Model')
+    plt.xlabel('Tiempo', fontsize=18)
+    plt.ylabel('Precio dolar ($)', fontsize=18)
+    plt.plot(train['Close'])
+    plt.plot(valid[['Predictions']])
+    plt.legend(['Train', 'Val', 'Predictions'], loc='lower right')
+    plt.show()
+    st.pyplot(fig2)
+    
+    # Visualizando la data 2
+    st.subheader('Comparacion de entrenamiento, validacion y prediccion')
+    fig3=plt.figure(figsize=(16,6))
+    plt.title('Model')
+    plt.xlabel('Tiempo', fontsize=18)
+    plt.ylabel('Precio dolar ($)', fontsize=18)
+    plt.plot(train['Close'])
+    plt.plot(valid[['Close','Predictions']])
+    plt.legend(['Train', 'Val', 'Predictions'], loc='lower right')
+    plt.show()
+    st.pyplot(fig3)
 
-    scale_factor = 1/scaler[0]
-    y_predicted = y_predicted * scale_factor
-    y_test = y_test * scale_factor
-
-    # Grafico Final
+    # Visualizando la data 3
     st.subheader('Precio predecido vs Precio Original')
-    fig2 = plt.figure(figsize=(12,6))
+    fig4=plt.figure(figsize=(12,6))
     plt.plot(y_test, 'b', label = 'Precio Original')
-    plt.plot(y_predicted, 'r', label= 'Precio Predecido')
+    plt.plot(predictions, 'r', label= 'Precio Predecido')
     plt.xlabel('Tiempo')
     plt.ylabel('Precio')
     plt.legend()
-    st.pyplot(fig2)
+    st.pyplot(fig4)
+    
+    # Visualizando datos
+    st.subheader('Mostrar los datos originales y predecidos') 
+    st.write(valid)
 
+
+
+
+
+
+
+   
 
 
 

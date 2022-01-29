@@ -154,12 +154,3 @@ def app():
     y = "tpr"
     )
     st.plotly_chart(fig)
-    
-
-
-
-    
-    
-    
-    
-
